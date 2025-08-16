@@ -60,6 +60,26 @@ def run():
 		else:
 			clrsrc()
 			print("Press X or O to continue")
+
+
+"""def run():
+    clrsrc()
+    print("Press X or O to continue")
+    while True:
+        game = input()
+        if ((game == "x") or (game == "X")):
+            print("Press Enter to Start the Game")
+            xplay()
+        elif ((game == "0") or (game == "O") or (game == "o")):
+            print("Computer starts first as X!")
+            clrsrc()
+            # Computer makes first move at center (best strategy)
+            xpos(2, 2)
+            show(board)
+            oplay()
+        else:
+            clrsrc()
+            print("Press X or O to continue")"""
 	
 def xplay():
 	while True:
@@ -110,7 +130,7 @@ def oplay():
 		else:
 			break
 
-def randomplay(play):
+"""def randomplay(play):
 	r = random.randint(1,3)
 	c = random.randint(1,3)
 	if play == "X":
@@ -126,7 +146,118 @@ def randomplay(play):
 		else:
 			randomplay("O")
 	else:
-		print("Computer is Sleeping")
+		print("Computer is Sleeping")"""
+
+
+def randomplay(play):
+    best_score = -1000 if play == "O" else 1000
+    best_move = None
+
+    for r in range(1, 4):
+        for c in range(1, 4):
+            if board[r-1][c-1] == '_':  # Empty spot
+                board[r-1][c-1] = play
+                score = minimax(board, 0, False if play == "O" else True)
+                board[r-1][c-1] = '_'
+
+                if play == "O":  # Computer as O tries to maximize
+                    if score > best_score:
+                        best_score = score
+                        best_move = (r, c)
+                else:  # Computer as X tries to minimize
+                    if score < best_score:
+                        best_score = score
+                        best_move = (r, c)
+
+    if best_move:
+        r, c = best_move
+        if play == "O":
+            opos(r, c)
+            xplay()
+        else:
+            xpos(r, c)
+            oplay()
+
+"""def randomplay(play):
+    # Opening trick: always take center if available
+    if board[1][1] == '_':
+        if play == "X":
+            xpos(2, 2)
+            oplay()
+        else:
+            opos(2, 2)
+            xplay()
+        return
+
+    # If not center, try corner (classic winning trick)
+    for (r, c) in [(1,1),(1,3),(3,1),(3,3)]:
+        if board[r-1][c-1] == '_':
+            if play == "X":
+                xpos(r, c)
+                oplay()
+            else:
+                opos(r, c)
+                xplay()
+            return
+
+    # Otherwise fallback to minimax
+    best_score = -1000 if play == "O" else 1000
+    best_move = None
+
+    for r in range(1, 4):
+        for c in range(1, 4):
+            if board[r-1][c-1] == '_':
+                board[r-1][c-1] = play
+                score = minimax(board, 0, False if play == "O" else True)
+                board[r-1][c-1] = '_'
+
+                if play == "O":
+                    if score > best_score:
+                        best_score = score
+                        best_move = (r, c)
+                else:
+                    if score < best_score:
+                        best_score = score
+                        best_move = (r, c)
+
+    if best_move:
+        r, c = best_move
+        if play == "O":
+            opos(r, c)
+            xplay()
+        else:
+            xpos(r, c)
+            oplay()"""  
+
+def minimax(state, depth, isMaximizing):
+    winner = check(state)
+    if winner == "O":
+        return 10 - depth
+    elif winner == "X":
+        return depth - 10
+    elif winner == "Die":
+        return 0
+
+    if isMaximizing:  # Computer = O
+        best_score = -1000
+        for r in range(3):
+            for c in range(3):
+                if state[r][c] == '_':
+                    state[r][c] = "O"
+                    score = minimax(state, depth + 1, False)
+                    state[r][c] = '_'
+                    best_score = max(score, best_score)
+        return best_score
+    else:  # Human = X
+        best_score = 1000
+        for r in range(3):
+            for c in range(3):
+                if state[r][c] == '_':
+                    state[r][c] = "X"
+                    score = minimax(state, depth + 1, True)
+                    state[r][c] = '_'
+                    best_score = min(score, best_score)
+        return best_score
 
 
 
